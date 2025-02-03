@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Credits
+BotCreds.json
+
 # C extensions
 *.so
 

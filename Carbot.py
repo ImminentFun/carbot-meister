@@ -8,9 +8,7 @@ import datetime
 
 import asyncio
 
-import json
 import gspread
-from google.oauth2 import service_account
 from google.oauth2.service_account import Credentials
 
 # Set up intents
@@ -20,7 +18,6 @@ intents.message_content = True
 intents.guilds = True
 intents.voice_states = True
 intents.members = True
-
 
 bot = commands.Bot(command_prefix="đ", intents=intents)
 
@@ -39,9 +36,7 @@ ReportChannelID = 1292176893738614856
 TrackedVoiceChannelID = 1300575898420117576
 BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
 
-with open(SERVICE_ACCOUNT_FILE, 'r') as f:
-    creds_data = json.load(f)
-creds = service_account.Credentials.from_service_account_info(creds_data, scopes=['https://www.googleapis.com/auth/spreadsheets'])
+creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 client = gspread.authorize(creds)
 sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Import")
 

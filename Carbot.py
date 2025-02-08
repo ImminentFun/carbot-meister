@@ -34,7 +34,7 @@ members_in_vc = {}
 guild_id = 708390420945567825 
 ReportChannelID = 1292176893738614856
 TrackedVoiceChannelID = 1300575898420117576
-BotToken = "MTEyMDg1ODM5MDUwODM0NzQ3NA.G-gZ4C.2kQ-JUR6Pg1JxQDUZle3q7Gh6_8KUvFh2g6X-o"
+BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 client = gspread.authorize(creds)
@@ -70,6 +70,7 @@ cohost = None
 async def on_ready():
     print(f"Logged in as {bot.user}!")
 
+"""
 # Override the on_message event to prevent command processing
 @bot.event
 async def on_message(message):
@@ -80,7 +81,7 @@ async def on_message(message):
     print(f"Received message: {message.content}")
 
     await bot.process_commands(message)
-
+"""
 @bot.event
 async def on_scheduled_event_update(before, after):
     global is_timer_running, members_in_vc, start_time, end_time, cohost, gamenight_overview_message

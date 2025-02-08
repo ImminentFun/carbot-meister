@@ -31,9 +31,9 @@ WaitForCoHost = 60 #default = 60
 
 is_timer_running = False
 members_in_vc = {}
-guild_id = 708390420945567825 
-ReportChannelID = 1292176893738614856
-TrackedVoiceChannelID = 1300575898420117576
+guild_id = 611454267965964290 
+ReportChannelID = 802613614469054504
+TrackedVoiceChannelID = 1117281625647099924
 BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])

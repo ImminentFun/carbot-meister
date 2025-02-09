@@ -32,7 +32,7 @@ WaitForCoHost = 60 #default = 60
 is_timer_running = False
 members_in_vc = {}
 guild_id = 611454267965964290 
-ReportChannelID = 802613614469054504
+ReportChannelID = 1338192139779182743
 TrackedVoiceChannelID = 1117281625647099924
 BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
 
@@ -45,12 +45,11 @@ gamenight_message = None
 """ Carbon Meister Official Server IDs
 
 guild_id = 611454267965964290 
-ReportChannelID = 802613614469054504
+ReportChannelID = 1338192139779182743
 TrackedVoiceChannelID = 1117281625647099924
 BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
 
 """
-
 
 """ Test Server IDs
 
@@ -70,6 +69,12 @@ cohost = None
 async def on_ready():
     print(f"Logged in as {bot.user}!")
 
+    guild = bot.get_guild(guild_id)
+    if guild:
+        print(f"Connected to the correct guild: {guild.name} ({guild.id})")
+    else:
+        print("The bot is not connected to the expected guild")
+    
 """
 # Override the on_message event to prevent command processing
 @bot.event
@@ -85,6 +90,9 @@ async def on_message(message):
 @bot.event
 async def on_scheduled_event_update(before, after):
     global is_timer_running, members_in_vc, start_time, end_time, cohost, gamenight_overview_message
+
+    if after.guild.id != guild_id:
+        return
 
     if before.status != after.status:
         guild = bot.get_guild(guild_id)
@@ -125,21 +133,21 @@ async def on_scheduled_event_update(before, after):
 
             if is_timer_running == True:
                 new_gamenight_info = f"""
-                ## Gamenight Overview:
-                ### Name: `{after.name}`
-                ### Host: {host.mention}
-                ### CoHost: {cohost.mention}
-                ### Duration: <a:Green:1335416471521857566> `Pending`
-                ### Date: `{start_time.strftime('%Y-%m-%d')}`
+                Gamenight Overview:
+                Name: `{after.name}`
+                Host: {host.mention}
+                CoHost: {cohost.mention}
+                Duration: <a:Green:1335416471521857566> `Pending`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
             else:
                 new_gamenight_info = f"""
-                ## Gamenight Overview:
-                ### Name: `{after.name}`
-                ### Host: {host.mention}
-                ### CoHost: {cohost.mention}
-                ### Duration: `{rounded_hours}h {rounded_minutes}m`
-                ### Date: `{start_time.strftime('%Y-%m-%d')}`
+                Gamenight Overview:
+                Name: `{after.name}`
+                Host: {host.mention}
+                CoHost: {cohost.mention}
+                Duration: `{rounded_hours}h {rounded_minutes}m`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
 
             embed1.description = new_gamenight_info
@@ -161,19 +169,19 @@ async def on_scheduled_event_update(before, after):
 
             if is_timer_running == True:
                 new_gamenight_info = f"""
-                ## Gamenight Overview:
-                ### Name: `{after.name}`
-                ### Host: {host.mention}
-                ### Duration: <a:Green:1335416471521857566> `Pending`
-                ### Date: `{start_time.strftime('%Y-%m-%d')}`
+                Gamenight Overview:
+                Name: `{after.name}`
+                Host: {host.mention}
+                Duration: <a:Green:1335416471521857566> `Pending`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
             else:
                 new_gamenight_info = f"""
-                ## Gamenight Overview:
-                ### Name: `{after.name}`
-                ### Host: {host.mention}
-                ### Duration: `{rounded_hours}h {rounded_minutes}m`
-                ### Date: `{start_time.strftime('%Y-%m-%d')}`
+                Gamenight Overview:
+                Name: `{after.name}`
+                Host: {host.mention}
+                Duration: `{rounded_hours}h {rounded_minutes}m`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
                 
             embed1.description = new_gamenight_info
@@ -205,11 +213,11 @@ async def on_scheduled_event_update(before, after):
             
             # Post "Gamenight Overview" at event start (without participants yet)
             GamenightInfoTable = f"""
-            ## Gamenight Overview:
-            ### Name: `{after.name}`
-            ### Host: {host.mention}
-            ### Duration: <a:Green:1335416471521857566> `Pending`
-            ### Date: `{start_time.strftime('%Y-%m-%d')}`
+            Gamenight Overview:
+            Name: `{after.name}`
+            Host: {host.mention}
+            Duration: <a:Green:1335416471521857566> `Pending`
+            Date: `{start_time.strftime('%Y-%m-%d')}`
             """
 
             embed1.description = GamenightInfoTable
@@ -280,12 +288,12 @@ async def on_scheduled_event_update(before, after):
 
             # Update the gamenight overview with duration and participants
             new_gamenight_info = f"""
-            ## Gamenight Overview:
-            ### Name: `{after.name}`
-            ### Host: {host.mention}
-            ### CoHost: {cohost.mention if cohost else 'None'}
-            ### Duration: `{rounded_hours}h {rounded_minutes}m`
-            ### Date: `{start_time.strftime('%Y-%m-%d')}`
+            Gamenight Overview:
+            Name: `{after.name}`
+            Host: {host.mention}
+            CoHost: {cohost.mention if cohost else 'None'}
+            Duration: `{rounded_hours}h {rounded_minutes}m`
+            Date: `{start_time.strftime('%Y-%m-%d')}`
             """
             embed1.description = new_gamenight_info
             embed1.set_image(url=after.cover_image.url if after.cover_image else None)
@@ -347,6 +355,9 @@ async def on_voice_state_update(member, before, after):
     global is_timer_running, members_in_vc
 
     if not is_timer_running:
+        return
+    
+    if member.guild.id != guild_id:
         return
 
     member_id = member.id

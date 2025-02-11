@@ -1,6 +1,5 @@
 import discord
-from discord.ext import commands
-from discord import EventStatus
+from discord import EventStatus, app_commands
 from discord.ui import Button, View
 
 import time
@@ -11,16 +10,25 @@ import asyncio
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Set up intents
+# Custom Client Class
+class MyClient(discord.Client):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+
+    async def setup_hook(self):
+        await self.tree.sync(guild=CARBOB_SERVER)
+        print(f"Current commands: {self.tree.get_commands(guild=CARBOB_SERVER)}")
+
+
+# Client instance and intents
 intents = discord.Intents.default()
 intents.guild_scheduled_events = True
 intents.message_content = True
 intents.guilds = True
 intents.voice_states = True
 intents.members = True
-
-bot = commands.Bot(command_prefix="đ", intents=intents)
-
+bot = MyClient(intents=intents)
 
 SERVICE_ACCOUNT_FILE = "BotCreds.json"
 SPREADSHEET_ID = "1Q8x4Qa9_8k7RpjqVnojw-BDeOeTEq1gnhYmrQdvqIr4"
@@ -31,17 +39,17 @@ WaitForCoHost = 60 #default = 60
 
 is_timer_running = False
 members_in_vc = {}
-guild_id = 611454267965964290 
-ReportChannelID = 1338192139779182743
-TrackedVoiceChannelID = 1117281625647099924
-BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
+guild_id = 708390420945567825 
+ReportChannelID = 1292176893738614856
+TrackedVoiceChannelID = 1300575898420117576
+BotToken = "MTEyMDg1ODM5MDUwODM0NzQ3NA.G-gZ4C.2kQ-JUR6Pg1JxQDUZle3q7Gh6_8KUvFh2g6X-o"
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 client = gspread.authorize(creds)
 sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Import")
 
 gamenight_message = None
-
+CARBOB_SERVER = discord.Object(id=guild_id)  
 """ Carbon Meister Official Server IDs
 
 guild_id = 611454267965964290 
@@ -75,7 +83,8 @@ async def on_ready():
     else:
         print("The bot is not connected to the expected guild")
     
-"""
+moderation_actions = "" # To turn into list/dictionary for cleaner code
+
 # Override the on_message event to prevent command processing
 @bot.event
 async def on_message(message):
@@ -83,10 +92,15 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    print(f"Received message: {message.content}")
+    # Moderation actions
+    print(message.content)
+    if "-ban" in message.content:
+        print("One extra ban!")
+    elif "-mute" in message.content:
+        print("One extra mute!")
+    elif "-warn" in message.content:
+        print("One extra warn!")
 
-    await bot.process_commands(message)
-"""
 @bot.event
 async def on_scheduled_event_update(before, after):
     global is_timer_running, members_in_vc, start_time, end_time, cohost, gamenight_overview_message

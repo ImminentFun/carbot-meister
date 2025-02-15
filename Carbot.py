@@ -261,7 +261,7 @@ async def on_scheduled_event_update(before, after):
                     rounded_minutes = 0
                 elif MinTime <= rounded_minutes < 45:
                     rounded_minutes = 30
-                elif 45 <= rounded_hours <= 59:
+                elif 45 <= rounded_minutes <= 59:
                     rounded_minutes = 0
                     rounded_hours += 1
 

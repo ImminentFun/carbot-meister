@@ -104,6 +104,11 @@ async def on_scheduled_event_update(before, after):
         if not channel:
             print(f"Unable to find the channel with ID {ReportChannelID}")
             return
+        
+        GamenightVoiceChannel = guild.get_channel(TrackedVoiceChannelID)
+        if not GamenightVoiceChannel:
+            print(f"Unable to find the channel with ID {TrackedVoiceChannelID}")
+            return
 
         host = after.creator if after.creator else None
 
@@ -199,6 +204,12 @@ async def on_scheduled_event_update(before, after):
 
         # --- EVENT STARTED ---
         if after.status == EventStatus.active:
+
+            overwrite = GamenightVoiceChannel.overwrites_for(guild.default_role)
+            overwrite.connect = True  # Deny connect permission
+            await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
+
+
             start_time = datetime.datetime.now()
             is_timer_running = True
             members_in_vc = {}
@@ -234,6 +245,11 @@ async def on_scheduled_event_update(before, after):
 
         # --- EVENT ENDED ---
         elif after.status == EventStatus.completed:
+            overwrite = GamenightVoiceChannel.overwrites_for(guild.default_role)
+            overwrite.connect = False  # Deny connect permission
+            await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
+
+
             end_time = datetime.datetime.now()
             is_timer_running = False
             results_list = []

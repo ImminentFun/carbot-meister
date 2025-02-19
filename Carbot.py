@@ -11,6 +11,8 @@ import asyncio
 import gspread
 from google.oauth2.service_account import Credentials
 
+import json
+
 # Set up intents
 intents = discord.Intents.default()
 intents.guild_scheduled_events = True
@@ -31,34 +33,23 @@ WaitForCoHost = 60 #default = 60
 
 is_timer_running = False
 members_in_vc = {}
-guild_id = 611454267965964290 
-ReportChannelID = 1338192139779182743
-TrackedVoiceChannelID = 1117281625647099924
-BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
+
+# Get IDS/Bot info
+with open("config.json", "r") as file:
+    config = json.load(file)
+
+# Choose which token to use (main or test)
+USE_TEST_MODE = False  # Change this to False for production/pushing to main branch
+guild_id = config["test_guild_id"] if USE_TEST_MODE else config["main_guild_id"] 
+ReportChannelID = config["test_ReportChannelID"] if USE_TEST_MODE else config["main_ReportChannelID"] 
+TrackedVoiceChannelID = config["test_TrackedVoiceChannelID"] if USE_TEST_MODE else config["main_TrackedVoiceChannelID"] 
+BotToken = config["test_token"] if USE_TEST_MODE else config["main_token"]
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 client = gspread.authorize(creds)
 sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Import")
 
 gamenight_message = None
-
-""" Carbon Meister Official Server IDs
-
-guild_id = 611454267965964290 
-ReportChannelID = 1338192139779182743
-TrackedVoiceChannelID = 1117281625647099924
-BotToken = "MTI5NDQ4MzE0Njc2MjYxNjg1NA.GckgDk.d2IJsTsCUm-HyMVb2zSELVIodGwktbsk7vzik8"
-
-"""
-
-""" Test Server IDs
-
-guild_id = 708390420945567825 
-ReportChannelID = 1292176893738614856
-TrackedVoiceChannelID = 1300575898420117576
-BotToken = "MTEyMDg1ODM5MDUwODM0NzQ3NA.G-gZ4C.2kQ-JUR6Pg1JxQDUZle3q7Gh6_8KUvFh2g6X-o"
-
-"""
 
 
 start_time = None

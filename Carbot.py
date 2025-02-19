@@ -95,6 +95,11 @@ async def on_scheduled_event_update(before, after):
         if not channel:
             print(f"Unable to find the channel with ID {ReportChannelID}")
             return
+        
+        GamenightVoiceChannel = guild.get_channel(TrackedVoiceChannelID)
+        if not GamenightVoiceChannel:
+            print(f"Unable to find the channel with ID {TrackedVoiceChannelID}")
+            return
 
         host = after.creator if after.creator else None
 
@@ -190,6 +195,12 @@ async def on_scheduled_event_update(before, after):
 
         # --- EVENT STARTED ---
         if after.status == EventStatus.active:
+
+            overwrite = GamenightVoiceChannel.overwrites_for(guild.default_role)
+            overwrite.connect = True  # Deny connect permission
+            await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
+
+
             start_time = datetime.datetime.now()
             is_timer_running = True
             members_in_vc = {}
@@ -225,6 +236,11 @@ async def on_scheduled_event_update(before, after):
 
         # --- EVENT ENDED ---
         elif after.status == EventStatus.completed:
+            overwrite = GamenightVoiceChannel.overwrites_for(guild.default_role)
+            overwrite.connect = False  # Deny connect permission
+            await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
+
+
             end_time = datetime.datetime.now()
             is_timer_running = False
             results_list = []
@@ -248,13 +264,14 @@ async def on_scheduled_event_update(before, after):
                 rounded_hours = unrounded_hours
                 rounded_minutes = unrounded_minutes
 
-                if rounded_minutes < MinTime:
+                if unrounded_minutes < MinTime:
                     rounded_minutes = 0
-                elif MinTime <= rounded_minutes < 45:
+                elif MinTime <= unrounded_minutes < 45:
                     rounded_minutes = 30
-                elif 45 <= rounded_hours <= 59:
+                elif 45 <= unrounded_minutes <= 60:
                     rounded_minutes = 0
                     rounded_hours += 1
+                    unrounded_hours += 1
 
                 results_list.append({
                     "name": member.name if member else member.display_name if member else "Unknown Member", 

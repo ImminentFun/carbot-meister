@@ -43,7 +43,6 @@ guild_id = config["test_guild_id"] if USE_TEST_MODE else config["main_guild_id"]
 ReportChannelID = config["test_ReportChannelID"] if USE_TEST_MODE else config["main_ReportChannelID"] 
 TrackedVoiceChannelID = config["test_TrackedVoiceChannelID"] if USE_TEST_MODE else config["main_TrackedVoiceChannelID"] 
 BotToken = config["test_token"] if USE_TEST_MODE else config["main_token"]
-MembersRoleID = config["test_MembersRoleID"] if USE_TEST_MODE else config["main_MembersRoleID"] 
 
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 client = gspread.authorize(creds)
@@ -188,11 +187,6 @@ async def on_scheduled_event_update(before, after):
             overwrite.connect = True 
             await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
 
-            # Unlock Gamenight Channel for @members
-            overwrite = GamenightVoiceChannel.overwrites_for(guild.get_role(MembersRoleID))
-            overwrite.connect = True 
-            await GamenightVoiceChannel.set_permissions(guild.get_role(MembersRoleID), overwrite=overwrite)
-
 
             start_time = datetime.datetime.now()
             is_timer_running = True
@@ -238,12 +232,6 @@ async def on_scheduled_event_update(before, after):
             overwrite = GamenightVoiceChannel.overwrites_for(guild.default_role)
             overwrite.connect = False 
             await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
-
-            # Lock Gamenight Channel for @members
-            overwrite = GamenightVoiceChannel.overwrites_for(guild.get_role(MembersRoleID))
-            overwrite.connect = False 
-            await GamenightVoiceChannel.set_permissions(guild.get_role(MembersRoleID), overwrite=overwrite)
-
 
             end_time = datetime.datetime.now()
             is_timer_running = False

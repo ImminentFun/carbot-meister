@@ -28,7 +28,7 @@ SERVICE_ACCOUNT_FILE = "BotCreds.json"
 SPREADSHEET_ID = "1Q8x4Qa9_8k7RpjqVnojw-BDeOeTEq1gnhYmrQdvqIr4"
 
 MaxLine = 30 #default = 30
-MinTime = 1 #default = 15
+MinTime = 15 #default = 15
 WaitForCoHost = 60 #default = 60
 
 is_timer_running = False
@@ -39,7 +39,7 @@ with open("config.json", "r") as file:
     config = json.load(file)
 
 # Choose which token to use (main or test)
-USE_TEST_MODE = True  # Change this to False for production/pushing to main branch
+USE_TEST_MODE = False  # Change this to False for production/pushing to main branch
 guild_id = config["test_guild_id"] if USE_TEST_MODE else config["main_guild_id"] 
 ReportChannelID = config["test_ReportChannelID"] if USE_TEST_MODE else config["main_ReportChannelID"] 
 TrackedVoiceChannelID = config["test_TrackedVoiceChannelID"] if USE_TEST_MODE else config["main_TrackedVoiceChannelID"] 

@@ -26,9 +26,10 @@ bot = commands.Bot(command_prefix="đ", intents=intents)
 
 SERVICE_ACCOUNT_FILE = "BotCreds.json"
 SPREADSHEET_ID = "1Q8x4Qa9_8k7RpjqVnojw-BDeOeTEq1gnhYmrQdvqIr4"
+USE_TEST_MODE = False  # Change this to False for production/pushing to main branch
 
 MaxLine = 30 #default = 30
-MinTime = 1 #default = 15
+MinTime = 15 #default = 15
 WaitForCoHost = 60 #default = 60
 
 is_timer_running = False
@@ -38,8 +39,6 @@ members_in_vc = {}
 with open("config.json", "r") as file:
     config = json.load(file)
 
-# Choose which token to use (main or test)
-USE_TEST_MODE = True  # Change this to False for production/pushing to main branch
 guild_id = config["test_guild_id"] if USE_TEST_MODE else config["main_guild_id"] 
 ReportChannelID = config["test_ReportChannelID"] if USE_TEST_MODE else config["main_ReportChannelID"] 
 TrackedVoiceChannelID = config["test_TrackedVoiceChannelID"] if USE_TEST_MODE else config["main_TrackedVoiceChannelID"] 
@@ -50,7 +49,6 @@ client = gspread.authorize(creds)
 sheet = client.open_by_key(SPREADSHEET_ID).worksheet("Import")
 
 gamenight_message = None
-
 
 start_time = None
 end_time = None
@@ -118,20 +116,20 @@ async def on_scheduled_event_update(before, after):
             if is_timer_running == True:
                 new_gamenight_info = f"""
                 Gamenight Overview:
-                Name: {after.name}
+                Name: `{after.name}`
                 Host: {host.mention}
                 CoHost: {cohost.mention}
-                Duration: <a:Green:1335416471521857566> Pending
-                Date: {start_time.strftime('%Y-%m-%d')}
+                Duration: <a:Green:1335416471521857566> `Pending`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
             else:
                 new_gamenight_info = f"""
                 Gamenight Overview:
-                Name: {after.name}
+                Name: `{after.name}`
                 Host: {host.mention}
                 CoHost: {cohost.mention}
-                Duration: {rounded_hours}h {rounded_minutes}m
-                Date: {start_time.strftime('%Y-%m-%d')}
+                Duration: `{rounded_hours}h {rounded_minutes}m`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
 
             embed1.description = new_gamenight_info
@@ -154,18 +152,18 @@ async def on_scheduled_event_update(before, after):
             if is_timer_running == True:
                 new_gamenight_info = f"""
                 Gamenight Overview:
-                Name: {after.name}
+                Name: `{after.name}`
                 Host: {host.mention}
-                Duration: <a:Green:1335416471521857566> Pending
-                Date: {start_time.strftime('%Y-%m-%d')}
+                Duration: <a:Green:1335416471521857566> `Pending`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
             else:
                 new_gamenight_info = f"""
                 Gamenight Overview:
-                Name: {after.name}
+                Name: `{after.name}`
                 Host: {host.mention}
-                Duration: {rounded_hours}h {rounded_minutes}m
-                Date: {start_time.strftime('%Y-%m-%d')}
+                Duration: `{rounded_hours}h {rounded_minutes}m`
+                Date: `{start_time.strftime('%Y-%m-%d')}`
                 """
                 
             embed1.description = new_gamenight_info
@@ -194,6 +192,9 @@ async def on_scheduled_event_update(before, after):
             is_timer_running = True
             members_in_vc = {}
 
+            #if USE_TEST_MODE == True:
+            #   asyncio.create_task(simulate_timer()) # Simulate timer for testing purposes
+
             # Track members in the voice channel
             for member in guild.members:
                 if member.voice and member.voice.channel and member.voice.channel.id == TrackedVoiceChannelID:
@@ -201,14 +202,15 @@ async def on_scheduled_event_update(before, after):
                         "start_time": discord.utils.utcnow().timestamp(),
                         "total_time": 0,
                     }]
+                    print(member.name)
             
             # Post "Gamenight Overview" at event start (without participants yet)
             GamenightInfoTable = f"""
             Gamenight Overview:
-            Name: {after.name}
+            Name: `{after.name}`
             Host: {host.mention}
-            Duration: <a:Green:1335416471521857566> Pending
-            Date: {start_time.strftime('%Y-%m-%d')}
+            Duration: <a:Green:1335416471521857566> `Pending`
+            Date: `{start_time.strftime('%Y-%m-%d')}`
             """
 
             embed1.description = GamenightInfoTable
@@ -225,11 +227,11 @@ async def on_scheduled_event_update(before, after):
 
         # --- EVENT ENDED ---
         elif after.status == EventStatus.completed:
+            
             # Lock Gamenight Channel for @everyone
             overwrite = GamenightVoiceChannel.overwrites_for(guild.default_role)
             overwrite.connect = False 
             await GamenightVoiceChannel.set_permissions(guild.default_role, overwrite=overwrite)
-
 
             end_time = datetime.datetime.now()
             is_timer_running = False
@@ -240,7 +242,7 @@ async def on_scheduled_event_update(before, after):
                 member = await fetch_member(guild, member_id)
                 total_time = sum(session["total_time"] for session in sessions)
 
-                if member and member.voice and member.voice.channel and member.voice.channel.id == TrackedVoiceChannelID:
+                if member and member.voice and member.voice.channel:
                     last_session = sessions[-1]
                     total_time += discord.utils.utcnow().timestamp() - last_session["start_time"]
 
@@ -263,10 +265,10 @@ async def on_scheduled_event_update(before, after):
                 elif 45 <= unrounded_minutes <= 60:
                     rounded_minutes = 0
                     rounded_hours += 1
-                    unrounded_hours += 1
+
 
                 results_list.append({
-                    "name": member.name if member else member.display_name if member else "Unknown Member", 
+                    "display_name": member.display_name if member else "Unknown Member",
                     "actual_name": member.name if member else "Unknown Member",
                     "mention": member.mention if member else f"<@{member_id}>",
                     "id": member_id,
@@ -275,11 +277,12 @@ async def on_scheduled_event_update(before, after):
                     "unrounded_minutes": total_minutes,
                 })
 
+
             # Sort participants by name for the report
-            results_list = sorted(results_list, key=lambda x: x["name"].lower())
+            results_list = sorted(results_list, key=lambda x: x["display_name"].lower())
 
             # Construct participant overview message
-            participants_info = "\n".join([f"### {entry['mention']} (ID: {entry['id']}): {entry['time']}" for entry in results_list])
+            participants_info = "\n".join([f"### {entry['mention']} (ID: `{entry['id']}`): `{entry['time']}`" for entry in results_list])
             embed = discord.Embed(
                 title="Participants Overview",
                 description=participants_info,
@@ -289,11 +292,11 @@ async def on_scheduled_event_update(before, after):
             # Update the gamenight overview with duration and participants
             new_gamenight_info = f"""
             Gamenight Overview:
-            Name: {after.name}
+            Name: `{after.name}`
             Host: {host.mention}
             CoHost: {cohost.mention if cohost else 'None'}
-            Duration: {rounded_hours}h {rounded_minutes}m
-            Date: {start_time.strftime('%Y-%m-%d')}
+            Duration: `{rounded_hours}h {rounded_minutes}m`
+            Date: `{start_time.strftime('%Y-%m-%d')}`
             """
             embed1.description = new_gamenight_info
             embed1.set_image(url=after.cover_image.url if after.cover_image else None)
@@ -309,8 +312,7 @@ async def on_scheduled_event_update(before, after):
 
             await asyncio.sleep(WaitForCoHost)
 
-            save_results_to_google_sheets(after, host, f"{unrounded_hours}h {unrounded_hours}m", end_time.strftime('%Y-%m-%d'), results_list, cohost)
-
+            save_results_to_google_sheets(after, host, f"{unrounded_hours}h {unrounded_minutes}m", end_time.strftime('%Y-%m-%d'), results_list, cohost)
 
 def save_results_to_google_sheets(event, host, duration_str, end_date, results_list, cohost=None):
     duration_parts = duration_str.split('h')
@@ -362,7 +364,7 @@ async def on_voice_state_update(member, before, after):
 
     member_id = member.id
 
-    if after.channel and after.channel.id == TrackedVoiceChannelID and (not before.channel or before.channel.id != TrackedVoiceChannelID):
+    if after.channel and after.channel.id == TrackedVoiceChannelID:
         if member_id not in members_in_vc:
             members_in_vc[member_id] = [{
                 "start_time": time.time(),
@@ -371,16 +373,35 @@ async def on_voice_state_update(member, before, after):
         else:
             members_in_vc[member_id].append({
                 "start_time": time.time(),
-                "total_time": 0,
+                "total_time": members_in_vc[member_id][-1]["total_time"],
             })
 
-        print(f"{member.name} joined the target VC.")
+        print(f"{member.display_name} joined the tracked VC: {TrackedVoiceChannelID}")
 
-    if before.channel and before.channel.id == TrackedVoiceChannelID and (not after.channel or after.channel.id != TrackedVoiceChannelID):
+    elif before.channel and before.channel.id == TrackedVoiceChannelID and (not after.channel or after.channel.id != TrackedVoiceChannelID):
+        if member_id in members_in_vc:
+            current_session = members_in_vc[member_id][-1]
+            current_session["total_time"] += time.time() - current_session["start_time"]
+            print(f"{member.display_name} left the tracked VC. Total time: {current_session['total_time']} seconds.")
+
+    elif after.channel and after.channel.id != TrackedVoiceChannelID:
         if member_id in members_in_vc:
             current_session = members_in_vc[member_id][-1]
             current_session["total_time"] += time.time() - current_session["start_time"]
 
-            print(f"{member.name} left the target VC. Total time: {current_session['total_time']} seconds.")
+
+async def simulate_timer():
+    global members_in_vc
+
+    while is_timer_running:
+        await asyncio.sleep(1)  # Wait for 1 second
+
+        for member_id in members_in_vc:
+            # Update the total time for each member by 1 second
+            members_in_vc[member_id][-1]["total_time"] += 1
+        
+        print("Simulated 1 second passed. Current member times:")
+        for member_id, sessions in members_in_vc.items():
+            print(f"Member {member_id} total time: {sessions[-1]['total_time']} seconds")
 
 bot.run(BotToken)

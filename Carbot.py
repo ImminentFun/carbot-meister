@@ -240,40 +240,37 @@ async def on_scheduled_event_update(before, after):
                 member = await fetch_member(guild, member_id)
                 total_time = sum(session["total_time"] for session in sessions)
 
+                # If the member is still in the voice channel, add the ongoing session
                 if member and member.voice and member.voice.channel and member.voice.channel.id == TrackedVoiceChannelID:
                     last_session = sessions[-1]
-                    total_time += discord.utils.utcnow().timestamp() - last_session["start_time"]
+                    total_time += time.time() - last_session["start_time"]
 
-                total_minutes = int(total_time // 60)  # Store exact minutes for sheets
-                if total_minutes < MinTime:
-                    continue  
+                total_minutes = int(total_time // 60)  # Convert to minutes
+                unrounded_hours = total_minutes // 60
+                unrounded_minutes = total_minutes % 60
 
-                event_duration_seconds = (end_time - start_time).total_seconds()
-
-                unrounded_hours, unrounded_remainder = divmod(int(event_duration_seconds), 3600)
-                unrounded_minutes, _ = divmod(unrounded_remainder, 60)
-
-                rounded_hours = unrounded_hours
-                rounded_minutes = unrounded_minutes
-
+                # Apply rounding
                 if unrounded_minutes < MinTime:
                     rounded_minutes = 0
                 elif MinTime <= unrounded_minutes < 45:
                     rounded_minutes = 30
                 elif 45 <= unrounded_minutes <= 60:
                     rounded_minutes = 0
-                    rounded_hours += 1
-                    unrounded_hours += 1
+                    unrounded_hours += 1  # Increase hours
+
+                # Update total hours after rounding
+                rounded_hours = unrounded_hours
 
                 results_list.append({
                     "name": member.name if member else member.display_name if member else "Unknown Member", 
                     "actual_name": member.name if member else "Unknown Member",
                     "mention": member.mention if member else f"<@{member_id}>",
                     "id": member_id,
-                    "time": f"{rounded_hours}h {rounded_minutes}m",
+                    "time": f"{rounded_hours}h {rounded_minutes}m",  # <- Now correctly rounded
                     "unrounded_time": f"{unrounded_hours}h {unrounded_minutes}m",
                     "unrounded_minutes": total_minutes,
                 })
+
 
             # Sort participants by name for the report
             results_list = sorted(results_list, key=lambda x: x["name"].lower())

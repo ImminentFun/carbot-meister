@@ -119,8 +119,8 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.mention}
-                CoHost: {cohost.mention}
+                Host: {host.name}
+                CoHost: {cohost.name}
                 Duration: <a:Green:1335416471521857566> Pending
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -128,8 +128,8 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.mention}
-                CoHost: {cohost.mention}
+                Host: {host.name}
+                CoHost: {cohost.name}
                 Duration: {rounded_hours}h {rounded_minutes}m
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -155,7 +155,7 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.mention}
+                Host: {host.name}
                 Duration: <a:Green:1335416471521857566> Pending
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -163,7 +163,7 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.mention}
+                Host: {host.name}
                 Duration: {rounded_hours}h {rounded_minutes}m
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -206,7 +206,7 @@ async def on_scheduled_event_update(before, after):
             GamenightInfoTable = f"""
             Gamenight Overview:
             Name: {after.name}
-            Host: {host.mention}
+            Host: {host.name}
             Duration: <a:Green:1335416471521857566> Pending
             Date: {start_time.strftime('%Y-%m-%d')}
             """
@@ -277,7 +277,7 @@ async def on_scheduled_event_update(before, after):
             results_list = sorted(results_list, key=lambda x: x["name"].lower())
 
             # Construct participant overview message
-            participants_info = "\n".join([f"### {entry['mention']} (ID: {entry['id']}): {entry['time']}" for entry in results_list])
+            participants_info = "\n".join([f"### {entry['actual_name']} (ID: {entry['id']}): {entry['time']}" for entry in results_list])
             embed = discord.Embed(
                 title="Participants Overview",
                 description=participants_info,
@@ -305,8 +305,8 @@ async def on_scheduled_event_update(before, after):
             new_gamenight_info = f"""
             Gamenight Overview:
             Name: {after.name}
-            Host: {host.mention}
-            CoHost: {cohost.mention if cohost else 'None'}
+            Host: {host.name}
+            CoHost: {cohost.name if cohost else 'None'}
             Duration: {rounded_hours}h {rounded_minutes}m
             Date: {start_time.strftime('%Y-%m-%d')}
             """

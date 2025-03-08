@@ -119,8 +119,8 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.name}
-                CoHost: {cohost.name}
+                Host: {host.display_name}
+                CoHost: {cohost.display_name}
                 Duration: <a:Green:1335416471521857566> Pending
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -128,8 +128,8 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.name}
-                CoHost: {cohost.name}
+                Host: {host.display_name}
+                CoHost: {cohost.display_name}
                 Duration: {rounded_hours}h {rounded_minutes}m
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -155,7 +155,7 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.name}
+                Host: {host.display_name}
                 Duration: <a:Green:1335416471521857566> Pending
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -163,7 +163,7 @@ async def on_scheduled_event_update(before, after):
                 new_gamenight_info = f"""
                 Gamenight Overview:
                 Name: {after.name}
-                Host: {host.name}
+                Host: {host.display_name}
                 Duration: {rounded_hours}h {rounded_minutes}m
                 Date: {start_time.strftime('%Y-%m-%d')}
                 """
@@ -206,7 +206,7 @@ async def on_scheduled_event_update(before, after):
             GamenightInfoTable = f"""
             Gamenight Overview:
             Name: {after.name}
-            Host: {host.name}
+            Host: {host.display_name}
             Duration: <a:Green:1335416471521857566> Pending
             Date: {start_time.strftime('%Y-%m-%d')}
             """
@@ -265,6 +265,7 @@ async def on_scheduled_event_update(before, after):
 
                 results_list.append({
                     "name": member.name if member else member.display_name if member else "Unknown Member", 
+                    "display_name": member.display_name if member else "Unknown Member",
                     "actual_name": member.name if member else "Unknown Member",
                     "mention": member.mention if member else f"<@{member_id}>",
                     "id": member_id,
@@ -277,7 +278,7 @@ async def on_scheduled_event_update(before, after):
             results_list = sorted(results_list, key=lambda x: x["name"].lower())
 
             # Construct participant overview message
-            participants_info = "\n".join([f"### {entry['actual_name']} (ID: {entry['id']}): {entry['time']}" for entry in results_list])
+            participants_info = "\n".join([f"### {entry['display_name']} (ID: {entry['id']}): {entry['time']}" for entry in results_list])
             embed = discord.Embed(
                 title="Participants Overview",
                 description=participants_info,
@@ -305,8 +306,8 @@ async def on_scheduled_event_update(before, after):
             new_gamenight_info = f"""
             Gamenight Overview:
             Name: {after.name}
-            Host: {host.name}
-            CoHost: {cohost.name if cohost else 'None'}
+            Host: {host.display_name}
+            CoHost: {cohost.display_name if cohost else 'None'}
             Duration: {rounded_hours}h {rounded_minutes}m
             Date: {start_time.strftime('%Y-%m-%d')}
             """
@@ -345,7 +346,7 @@ def save_results_to_google_sheets(event, host, duration_str, end_date, results_l
         # Use unrounded time values for Google Sheets
         total_minutes = entry["unrounded_minutes"]
 
-        row = [end_date, event.name, str(event.id), total_gamenight_minutes, participant_role, entry["actual_name"], str(entry["id"]), total_minutes]
+        row = [end_date, event.name, str(event.id), total_gamenight_minutes, participant_role, entry["display_name"], str(entry["id"]), total_minutes]
         rows_for_gsheets.append(row)
 
     if rows_for_gsheets:

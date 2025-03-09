@@ -275,7 +275,7 @@ async def on_scheduled_event_update(before, after):
                 })
 
             # Sort participants by name for the report
-            results_list = sorted(results_list, key=lambda x: x["name"].lower())
+            results_list = sorted(results_list, key=lambda x: x["display_name"].lower())
 
             # Construct participant overview message
             participants_info = "\n".join([f"### {entry['display_name']} (ID: {entry['id']}): {entry['time']}" for entry in results_list])
